@@ -1,39 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Restaurant Map | KanglungDine</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Local Map - Kanglung Dine</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+  
   <style>
-    .map-container {
-      height: 80vh;
-      width: 100%;
-      margin: 30px 0;
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    .map-heading {
+    .map-title {
+      font-family: 'Georgia', serif;
+      font-weight: bold;
       text-align: center;
-      font-size: 28px;
-      margin-top: 30px;
-      color: #ff6600;
+      font-size: 2.5em;
+      margin: 20px 0;
+      color: #fff;
+    }
+    .map-subtitle {
+      font-family: 'Georgia', serif;
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 30px;
+      color:rgb(247, 236, 236);
+    }
+    .map-container {
+      height: 60vh;
+      width: 100%;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .categories-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .categories-title {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #000;
+    }
+    .category-cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .category-card {
+      width: 250px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      background: #000;
+    }
+    .category-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .category-name {
+      padding: 15px;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-  <!-- NAVBAR -->
+  <!-- ===== NAVBAR ===== -->
   <%- include('partials/header') %>
 
-  <!-- PAGE HEADING -->
-  <h2 class="map-heading">Explore Restaurants in Kanglung</h2>
+  <div class="page-container">
+    <h1 class="map-title">Local Map</h1>
+    <h2 class="map-subtitle">Choose your favorite restaurant</h2>
 
-  <!-- MAP SECTION -->
-  <div id="map" class="map-container"></div>
+    <div id="map" class="map-container"></div>
 
-<!-- FOOTER -->
-<%- include('partials/footer') %>
+    <div class="categories-section">
+      <h2 class="categories-title">We offer Details of:</h2>
+      <div class="category-cards">
+        <div class="category-card">
+          <img src="/images/restaurant.jpeg" alt="Restaurant">
+          <div class="category-name">Restaurant</div>
+        </div>
+        <div class="category-card">
+          <img src="/images/bar.jpg" alt="Bar">
+          <div class="category-name">Bar</div>
+        </div>
+        <div class="category-card">
+          <img src="/images/bakery.jpeg" alt="Bakery">
+          <div class="category-name">Bakery</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===== Footer ===== -->
+  <%- include('partials/footer') %>
 
-  <!-- MAP SCRIPT -->
   <script>
     const map = L.map('map').setView([27.2566, 91.5049], 15); // Kanglung approx coords
 
@@ -41,17 +115,18 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Example: Adding sample restaurant markers
     const restaurants = [
-      { name: "Norling Restaurant", lat: 27.257, lon: 91.503 },
-      { name: "Dine & Delight Café", lat: 27.255, lon: 91.506 },
-      { name: "Tenzin Bakery", lat: 27.256, lon: 91.502 }
+      { name: "Tashi Delek", lat: 27.257, lon: 91.503, type: "restaurant" },
+      { name: "NC", lat: 27.255, lon: 91.506, type: "restaurant" },
+      { name: "Kuenga Samdrup", lat: 27.256, lon: 91.502, type: "restaurant" },
+      { name: "Apple Bees", lat: 27.258, lon: 91.504, type: "restaurant" },
+      { name: "Namsai", lat: 27.254, lon: 91.505, type: "restaurant" }
     ];
 
     restaurants.forEach(resto => {
       L.marker([resto.lat, resto.lon])
         .addTo(map)
-        .bindPopup(`<b>${resto.name}</b>`)
+        .bindPopup(`<b>${resto.name}</b><br>${resto.type.charAt(0).toUpperCase() + resto.type.slice(1)}`)
         .openPopup();
     });
   </script>

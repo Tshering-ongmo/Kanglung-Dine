@@ -54,10 +54,23 @@
     color: #ff6600;
   }
   
+  /**FAQ**/
+  .faq-section{
+    padding: 50px 20px;
+    color: #fff;
+  }
+  .faq-section h2 {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
   .faq-container {
     max-width: 800px;
     margin: 0 auto;
   }
+  
   .faq-item {
     border-bottom: 1px solid #ddd;
     padding: 1rem 0;
@@ -73,7 +86,7 @@
     position: absolute;
     right: 0;
     font-size: 1.5rem;
-    color: #ff6600;
+    color: #0f1653;
   }
   .faq-item.active .faq-question::after {
     content: '-';

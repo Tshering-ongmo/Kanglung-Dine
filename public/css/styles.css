@@ -1,9 +1,10 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
+  background-color:rgb(211, 93, 14);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
   /** Hero section **/
   .hero-section {
     position: relative;
@@ -46,6 +47,9 @@ body {
   
   /** Categories Section **/
   .categories {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    color: #fff;
     text-align: center;
     padding: 50px 20px;
   }
@@ -115,6 +119,8 @@ body {
     font-size: 30px;
     margin-bottom: 10px;
     color: #000;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
   }
   .visual-text p {
     font-size: 16px;
@@ -135,7 +141,6 @@ body {
   
   /* TESTIMONIALS SECTION */
   .testimonials {
-    background: #ff6600;
     padding: 50px 20px;
     color: #fff;
     text-align: center;

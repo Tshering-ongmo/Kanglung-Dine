@@ -6,6 +6,7 @@
   <title>Local Map - Kanglung Dine</title>
   <link rel="stylesheet" href="/css/styles.css"/>
   <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -19,16 +20,19 @@
       padding: 20px;
     }
     .map-title {
+      font-family: 'Georgia', serif;
+      font-weight: bold;
       text-align: center;
       font-size: 2.5em;
       margin: 20px 0;
-      color: #000;
+      color: #fff;
     }
     .map-subtitle {
+      font-family: 'Georgia', serif;
       text-align: center;
       font-size: 1.5em;
       margin-bottom: 30px;
-      color: #666;
+      color:rgb(247, 236, 236);
     }
     .map-container {
       height: 60vh;
@@ -87,7 +91,7 @@
       <h2 class="categories-title">We offer Details of:</h2>
       <div class="category-cards">
         <div class="category-card">
-          <img src="/images/restaurant.jpg" alt="Restaurant">
+          <img src="/images/restaurant.jpeg" alt="Restaurant">
           <div class="category-name">Restaurant</div>
         </div>
         <div class="category-card">
@@ -95,14 +99,14 @@
           <div class="category-name">Bar</div>
         </div>
         <div class="category-card">
-          <img src="/images/bakery.jpg" alt="Bakery">
+          <img src="/images/bakery.jpeg" alt="Bakery">
           <div class="category-name">Bakery</div>
         </div>
       </div>
     </div>
   </div>
   <!-- ===== Footer ===== -->
-  <%- include('partials/footer') %>
+  <%- include('components/footer') %>
 
   <script>
     const map = L.map('map').setView([27.2566, 91.5049], 15); // Kanglung approx coords
