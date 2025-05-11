@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Map | KanglungDine</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .map-container {
+      height: 80vh;
+      width: 100%;
+      margin: 30px 0;
+    }
+    .map-heading {
+      text-align: center;
+      font-size: 28px;
+      margin-top: 30px;
+      color: #ff6600;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <%- include('partials/header') %>
+
+  <!-- PAGE HEADING -->
+  <h2 class="map-heading">Explore Restaurants in Kanglung</h2>
+
+  <!-- MAP SECTION -->
+  <div id="map" class="map-container"></div>
+
+<!-- FOOTER -->
+<%- include('partials/footer') %>
+
+  <!-- MAP SCRIPT -->
+  <script>
+    const map = L.map('map').setView([27.2566, 91.5049], 15); // Kanglung approx coords
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Example: Adding sample restaurant markers
+    const restaurants = [
+      { name: "Norling Restaurant", lat: 27.257, lon: 91.503 },
+      { name: "Dine & Delight Café", lat: 27.255, lon: 91.506 },
+      { name: "Tenzin Bakery", lat: 27.256, lon: 91.502 }
+    ];
+
+    restaurants.forEach(resto => {
+      L.marker([resto.lat, resto.lon])
+        .addTo(map)
+        .bindPopup(`<b>${resto.name}</b>`)
+        .openPopup();
+    });
+  </script>
+</body>
+</html>
