@@ -1,11 +1,12 @@
 // Import required modules
 const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv'); // load local file .env
+const dotenv = require('dotenv');
 const { sequelize } = require('./config/db');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const { initializeDatabase } = require('./models');
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 // Load environment variables
 dotenv.config();
@@ -14,31 +15,43 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3030;
 
-// Middleware for parsing request bodies
+// Session store setup
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+  tableName: "Session",
+  checkExpirationInterval: 15 * 60 * 1000,
+  expiration: 24 * 60 * 60 * 1000,
+});
+
+// Trust proxy in production
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Set view engine
+// View engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Add session middleware
+// Session middleware
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production', // true in production
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        httpOnly: true, // prevents client-side access to the cookie
-        sameSite: 'strict' // CSRF protection
-    }
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  store: sessionStore,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'strict'
+  }
 }));
 
-// Import routes
+// Routes
 const indexRoutes = require('./routes/index');
 const authRoutes = require('./routes/authRoutes');
 const homeRoutes = require('./routes/homeRoutes');
@@ -48,7 +61,6 @@ const testimonialRoutes = require('./routes/testimonialRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const ownerRoutes = require('./routes/ownerRoutes');
 
-// Mount routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/', homeRoutes);
@@ -58,94 +70,48 @@ app.use('/testimonials', testimonialRoutes);
 app.use('/admin', adminRoutes);
 app.use('/res_owner', ownerRoutes);
 
-// Routes before logging in
-app.get('/', (req, res) => {
-    res.render('index');
-});
+// Static page routes
+app.get('/', (req, res) => res.render('index'));
+app.get('/restaurants', (req, res) => res.render('restaurants'));
+app.get('/about', (req, res) => res.render('about'));
+app.get('/contact', (req, res) => res.render('contact'));
+app.get('/home', (req, res) => res.render('home'));
+app.get('/lmap', (req, res) => res.render('lmap'));
+app.get('/labout', (req, res) => res.render('labout'));
+app.get('/lcontact', (req, res) => res.render('lcontact'));
+app.get('/Kuengasamdrup', (req, res) => res.render('Kuengasamdrup'));
+app.get('/NC', (req, res) => res.render('NC'));
+app.get('/Applebees', (req, res) => res.render('Applebees'));
+app.get('/Namsai', (req, res) => res.render('Namsai'));
+app.get('/Tashidelek', (req, res) => res.render('Tashidelek'));
+app.get('/terms', (req, res) => res.render('terms'));
 
-app.get('/restaurants', (req, res) => {
-    res.render('restaurants');
-});
-
-app.get('/about', (req, res) => {
-    res.render('about');
-});
-
-app.get('/contact', (req, res) => {
-    res.render('contact');
-});
-
-// Routes after logging in
-app.get('/home', (req, res) => {
-    res.render('home');
-});
-
-app.get('/lmap', (req, res) => {
-    res.render('lmap');
-});
-
-app.get('/labout', (req, res) => {
-    res.render('labout');
-});
-
-app.get('/lcontact', (req, res) => {
-    res.render('lcontact');
-});
-
-// Restaurant routes
-app.get('/Kuengasamdrup', (req, res) => {
-    res.render('Kuengasamdrup');
-});
-
-app.get('/NC', (req, res) => {
-    res.render('NC');
-});
-
-app.get('/Applebees', (req, res) => {
-    res.render('Applebees');
-});
-
-app.get('/Namsai', (req, res) => {
-    res.render('Namsai');
-});
-
-app.get('/Tashidelek', (req, res) => {
-    res.render('Tashidelek');
-});
-
-// Terms and Conditions route
-app.get('/terms', (req, res) => {
-    res.render('terms');
-});
-
-// Database test endpoint
+// DB connection test
 app.get('/db-test', async (req, res) => {
-    try {
-        await sequelize.authenticate();
-        res.json({ message: 'Database connected successfully', time: new Date() });
-    } catch (err) {
-        res.status(500).json({ error: 'Database connection failed', details: err.message });
-    }
+  try {
+    await sequelize.authenticate();
+    res.json({ message: 'Database connected successfully', time: new Date() });
+  } catch (err) {
+    res.status(500).json({ error: 'Database connection failed', details: err.message });
+  }
 });
 
-// Initialize database and start server
+// Start server after initializing DB
 const startServer = async () => {
-    try {
-        // Initialize database
-        await initializeDatabase();
-        
-        // Start server
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
+  try {
+    await sessionStore.sync();
+    await sequelize.sync({ force: false });
+    await initializeDatabase();
+
+    console.log("✅ Database and session store synchronized!");
+
+    app.listen(PORT, () => {
+      console.log(`✅ Server running at http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
 };
 
-// Start the server
-startServer().catch(err => {
-    console.error('Unhandled error:', err);
-    process.exit(1);
-});
+startServer();
