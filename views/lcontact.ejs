@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kanglung Dine</title>
+  <title>Contact Us | Kanglung Dine</title>
   <link rel="stylesheet" href="/css/styles.css"/>
   <link rel="stylesheet" href="/css/header.css">
   <link rel="stylesheet" href="/css/contact.css">
@@ -26,19 +26,32 @@
       <p><strong>Location:</strong> Kanglung, Trashigang</p>
       <p><strong>Phone No.:</strong> +975-17345689</p>
       <p><strong>Email:</strong> kanglungdine123@gmail.com</p>
-      <div class="social-icons">
-        <i class="fab fa-tiktok"></i>
-        <i class="fab fa-facebook"></i>
-        <i class="fab fa-instagram"></i>
-        <i class="fab fa-twitter"></i>
-      </div>
     </div>
-    <form class="contact-form">
-      <input type="text" placeholder="Name" required>
-      <input type="email" placeholder="Email" required>
-      <textarea placeholder="Message" rows="4" required></textarea>
+    <form id="contactForm" class="contact-form">
+      <input type="text" id="name" name="name" placeholder="Name" required>
+      <input type="email" id="email" name="email" placeholder="Email" required>
+      <textarea id="message" name="message" placeholder="Message" rows="4" required></textarea>
+      <div class="rating-container">
+        <label for="rating">Rating:</label>
+        <div class="star-rating">
+          <i class="bi bi-star" data-rating="1"></i>
+          <i class="bi bi-star" data-rating="2"></i>
+          <i class="bi bi-star" data-rating="3"></i>
+          <i class="bi bi-star" data-rating="4"></i>
+          <i class="bi bi-star" data-rating="5"></i>
+        </div>
+        <input type="hidden" id="rating" name="rating" value="">
+      </div>
       <button type="submit">Submit</button>
     </form>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <h2>Customer Testimonials</h2>
+    <div id="testimonials-container">
+      <!-- Dynamic testimonials will be loaded here -->
+    </div>
   </section>
   
   <section class="faq-section">
@@ -57,34 +70,215 @@
         <div class="faq-answer">No payment is needed for table booking. Pay directly at the restaurant after your meal.</div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">4. What happens if I’m late for my reservation?</div>
+        <div class="faq-question">4. What happens if I'm late for my reservation?</div>
         <div class="faq-answer">Your reservation will be held for 15 minutes after the scheduled time. After that, it may be canceled.</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">5. How can I check my booking details?</div>
-        <div class="faq-answer">After booking, you’ll receive a confirmation email with all your reservation details.</div>
+        <div class="faq-answer">After booking, you'll receive a confirmation email with all your reservation details.</div>
       </div>
-    </div>
-  </section>
-  
-  
-  <section class="testimonials">
-    <h2>User Testimonials & Reviews</h2>
-    <div class="testimonials-grid">
-      <% for (let i = 0; i < 12; i++) { %>
-        <div class="testimonial-card">
-          <div class="user-icon"><i class="fas fa-user"></i></div>
-          <p class="testimonial-text">“A wonderful dining experience with delicious food and friendly service. Would recommend to everyone!”</p>
-          <p class="testimonial-author">- Happy Customer</p>
-        </div>
-      <% } %>
     </div>
   </section>
   
 <!-- ===== FOOTER ===== -->
 <%- include('components/footer') %>
 
-<script src="/js/script.js"></script>
-<script src="/js/contact.js"></script>
+<style>
+.testimonials-section {
+    padding: 2rem;
+    background: #fff;
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+
+.testimonials-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.testimonial {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.testimonial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.testimonial-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.testimonial-rating {
+    color: #ffd700;
+}
+
+.testimonial-message {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.testimonial-date {
+    font-size: 0.875rem;
+    color: #999;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.star-rating i {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star-rating i.active {
+    color: #ffd700;
+}
+
+.star-rating i:hover {
+    color: #ffd700;
+}
+
+.rating-container {
+    margin: 1rem 0;
+}
+
+.rating-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+</style>
+
+<script>
+// Star rating functionality
+const starRating = document.querySelector('.star-rating');
+const ratingInput = document.getElementById('rating');
+const stars = starRating.querySelectorAll('i');
+
+function setRating(rating) {
+    ratingInput.value = rating;
+    stars.forEach(star => {
+        const starRating = parseInt(star.getAttribute('data-rating'));
+        if (starRating <= rating) {
+            star.classList.remove('bi-star');
+            star.classList.add('bi-star-fill', 'active');
+        } else {
+            star.classList.remove('bi-star-fill', 'active');
+            star.classList.add('bi-star');
+        }
+    });
+}
+
+stars.forEach(star => {
+    star.addEventListener('mouseover', () => {
+        const rating = star.getAttribute('data-rating');
+        setRating(rating);
+    });
+});
+
+starRating.addEventListener('mouseleave', () => {
+    if (!ratingInput.value) {
+        stars.forEach(star => {
+            star.classList.remove('bi-star-fill', 'active');
+            star.classList.add('bi-star');
+        });
+    } else {
+        setRating(ratingInput.value);
+    }
+});
+
+stars.forEach(star => {
+    star.addEventListener('click', () => {
+        const rating = star.getAttribute('data-rating');
+        setRating(rating);
+    });
+});
+
+// Function to load testimonials
+async function loadTestimonials() {
+    const container = document.getElementById('testimonials-container');
+    container.innerHTML = '<div class="loading">Loading testimonials...</div>';
+
+    try {
+        const response = await fetch('/testimonials');
+        const testimonials = await response.json();
+
+        if (testimonials.length === 0) {
+            container.innerHTML = '<p class="no-testimonials">No testimonials yet. Be the first to share your experience!</p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="testimonials-container">
+                ${testimonials.map(testimonial => `
+                    <div class="testimonial">
+                        <div class="testimonial-header">
+                            <span class="testimonial-name">${testimonial.name}</span>
+                            <span class="testimonial-rating">${'⭐'.repeat(testimonial.rating || 0)}</span>
+                        </div>
+                        <p class="testimonial-message">${testimonial.message}</p>
+                        <div class="testimonial-date">${new Date(testimonial.createdAt).toLocaleDateString()}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading testimonials:', error);
+        container.innerHTML = '<p class="error">Failed to load testimonials. Please try again later.</p>';
+    }
+}
+
+// Handle form submission
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value,
+        rating: document.getElementById('rating').value
+    };
+
+    try {
+        const response = await fetch('/testimonials/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('Thank you for your feedback!');
+            document.getElementById('contactForm').reset();
+            setRating(0); // Reset star rating
+            await loadTestimonials(); // Reload testimonials
+        } else {
+            alert('Failed to submit feedback. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        alert('An error occurred. Please try again later.');
+    }
+});
+
+// Load testimonials when page loads
+document.addEventListener('DOMContentLoaded', loadTestimonials);
+</script>
 </body>
 </html>

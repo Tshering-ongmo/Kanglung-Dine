@@ -1,19 +1,13 @@
 // Import required modules
 const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv') // load local file .env
-const db = require('./config/db');
+const dotenv = require('dotenv'); // load local file .env
+const { sequelize } = require('./config/db');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const { initializeDatabase } = require('./models');
 
-// Import routes
-const indexRoutes = require('./routes/index');
-const authRoutes = require('./routes/authRoutes');
-const homeRoutes = require('./routes/homeRoutes');
-const profileRoutes = require('./routes/profileRoutes');
-const reservationRoutes = require('./routes/reservationRoutes');
-
-//load environment variables
+// Load environment variables
 dotenv.config();
 
 // Initialize Express app
@@ -24,11 +18,18 @@ const PORT = process.env.PORT || 3030;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Set view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Add session middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { 
         secure: process.env.NODE_ENV === 'production', // true in production
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -37,91 +38,114 @@ app.use(session({
     }
 }));
 
-// Set view engine to EJS
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname,'views'));
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Import routes
-//Routes before logging in
+const indexRoutes = require('./routes/index');
+const authRoutes = require('./routes/authRoutes');
+const homeRoutes = require('./routes/homeRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const reservationRoutes = require('./routes/reservationRoutes');
+const testimonialRoutes = require('./routes/testimonialRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const ownerRoutes = require('./routes/ownerRoutes');
+
+// Mount routes
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
+app.use('/', homeRoutes);
+app.use('/profile', profileRoutes);
+app.use('/reservations', reservationRoutes);
+app.use('/testimonials', testimonialRoutes);
+app.use('/admin', adminRoutes);
+app.use('/res_owner', ownerRoutes);
+
+// Routes before logging in
 app.get('/', (req, res) => {
     res.render('index');
 });
-app.get('/map', (req, res) => {
-  res.render('map');
+
+app.get('/restaurants', (req, res) => {
+    res.render('restaurants');
 });
 
-// Add this route for the about page
 app.get('/about', (req, res) => {
-  res.render('about');
+    res.render('about');
 });
 
 app.get('/contact', (req, res) => {
-  res.render('contact');
+    res.render('contact');
 });
 
-
-// Route after logging in
-// Add this new route for the home page
+// Routes after logging in
 app.get('/home', (req, res) => {
-  res.render('home');
+    res.render('home');
 });
-// Add the lmap route
+
 app.get('/lmap', (req, res) => {
-  res.render('lmap');
+    res.render('lmap');
 });
 
-// Add this route for the about page
 app.get('/labout', (req, res) => {
-  res.render('labout');
+    res.render('labout');
 });
 
-// Add the lcontact route
 app.get('/lcontact', (req, res) => {
-  res.render('lcontact');
+    res.render('lcontact');
 });
 
-// Add the reservations route
-app.get('/reservations', (req, res) => {
-  res.render('reservation');
+// Restaurant routes
+app.get('/Kuengasamdrup', (req, res) => {
+    res.render('Kuengasamdrup');
 });
 
-
-// Add this with your other route middleware
-app.post('/reservations', async (req, res) => {
-  const { restaurant, date, time, duration, number_of_people, special_requests } = req.body;
-
-  try {
-      const reservationResult = await db.one(
-          'INSERT INTO reservations (restaurant_name, reservation_date, reservation_time, duration, number_of_people, special_requests, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING reservation_id',
-          [restaurant, date, time, duration, number_of_people, special_requests, 'pending']
-      );
-
-      res.status(200).json({
-          message: 'Reservation created successfully',
-          reservationId: reservationResult.reservation_id
-      });
-  } catch (error) {
-      console.error('Error creating reservation:', error);
-      res.status(500).json({ message: 'Failed to create reservation' });
-  }
+app.get('/NC', (req, res) => {
+    res.render('NC');
 });
 
-// Add database test endpoint
+app.get('/Applebees', (req, res) => {
+    res.render('Applebees');
+});
+
+app.get('/Namsai', (req, res) => {
+    res.render('Namsai');
+});
+
+app.get('/Tashidelek', (req, res) => {
+    res.render('Tashidelek');
+});
+
+// Terms and Conditions route
+app.get('/terms', (req, res) => {
+    res.render('terms');
+});
+
+// Database test endpoint
 app.get('/db-test', async (req, res) => {
     try {
-        const result = await db.one('SELECT NOW() AS current_time');
-        res.json({ message: 'Database connected successfully', time: result.current_time });
+        await sequelize.authenticate();
+        res.json({ message: 'Database connected successfully', time: new Date() });
     } catch (err) {
         res.status(500).json({ error: 'Database connection failed', details: err.message });
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-console.log(`Server is running on http://localhost:${PORT}`);
+// Initialize database and start server
+const startServer = async () => {
+    try {
+        // Initialize database
+        await initializeDatabase();
+        
+        // Start server
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+};
+
+// Start the server
+startServer().catch(err => {
+    console.error('Unhandled error:', err);
+    process.exit(1);
 });
