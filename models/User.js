@@ -1,59 +1,59 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const { sequelize } = require('../config/db'); // Ensure this path is correct
 
 const User = sequelize.define('User', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
     },
-    name: {
-        type: DataTypes.STRING(255),
-        allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    defaultValue: 'user',
+    validate: {
+      isIn: [['user', 'owner', 'admin']],
     },
-    email: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-        unique: true,
-        validate: {
-            isEmail: true
-        }
-    },
-    password: {
-        type: DataTypes.STRING(255),
-        allowNull: false
-    },
-    role: {
-        type: DataTypes.STRING(10),
-        allowNull: false,
-        defaultValue: 'user',
-        validate: {
-            isIn: [['user', 'owner', 'admin']]
-        }
-    },
-    bio: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
-    profilePicture: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-    },
-    isVerified: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    verificationToken: {
-        type: DataTypes.STRING,
-        allowNull: true
-    }
+  },
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  profilePicture: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  verificationToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
-    tableName: 'users',
-    timestamps: true,
-    underscored: false,
-    schema: 'public',
-    freezeTableName: true
+  tableName: 'users',
+  timestamps: true,
+  underscored: false,
+  freezeTableName: true,
+  schema: 'public',
 });
 
 module.exports = User;
